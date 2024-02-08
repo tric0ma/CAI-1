@@ -16,26 +16,7 @@ class matricula:
         res = str(hash_base64.decode('utf-8'))
         return res
     ########################
-    ### NUMBERS FUNCTION ###
-    #def pruebaNums(l1,l2,l3):
-        i1 = i2 = i3 = i4 = 0
-        while i1 < 10:
-            while i2 <10:
-                while i3<10:
-                    while i4<10:
-                        contra=str(i1)+str(i2)+str(i3)+str(i4)+str(l1)+str(l2)+str(l3)
-                        result = hashing(contra,salt)
-                        if result == goal:
-                            print(result)
-                            print(contra)
-                            break
-                        i4=i4+1
-                    i4=0
-                    i3=i3+1
-                i3=0
-                i2=i2+1
-            i2=0
-            i1=i1+1
+    ### COMPARE FUNCTION ###
     def comparar(contra, result):
         if result == goal:
             print(f"HASH MATCHING! {result}")
@@ -45,7 +26,8 @@ class matricula:
             print(f"ELAPSED TIME: {tiempo_ejecucion} secs")
             return True
         return False
-
+    ########################
+    ### NUMBERS FUNCTION ###
     def pruebaNums(l1, l2, l3):
         for i in range(10**4): #----------------------------------------------------------------- Bucle que se ejecuta 10000 veces
             i1, i2, i3, i4 = i // 1000, (i % 1000) // 100, (i % 100) // 10, i % 10
