@@ -1,1 +1,2 @@
-Soluciones para CAI-1 de la asignatura SSII
+# Repositorio para las soluciones a los PAIs y CAIs de la asignatura SSII
+
