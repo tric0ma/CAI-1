@@ -1,6 +1,7 @@
 import socket
 import calcular_mac
 import secrets
+from datetime import datetime, timezone
 HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 3030  # Port to listen on (non-privileged ports are > 1023)
 KEY = bytes("98374509837459", "utf-8")
@@ -20,36 +21,43 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             nonce_recibido = data.decode().split("|")[1]
             mac_recibido = data.decode().split("|")[2]
             mac_calculado = calcular_mac.calcular_mac(mensaje, KEY, nonce_recibido)
-
+            nonce_devuelto = secrets.token_urlsafe()
+            
             with open("nonces.txt", "r") as f:
                 for line in f:
                     nonces.add(line.strip())
 
             with open("nonces.txt", "a") as f:
-    
-                if nonce_recibido not in nonces:
-            
-                    f.write(str(nonce_recibido))
-                    f.write("\n")
-                    if mac_calculado == mac_recibido:
-                        print("KEY -------------> ",KEY)
-                        print("MENSAJE ---------> ",mensaje)
-                        print("NONCE -----------> ",nonce_recibido)
-                        print("MAC CALCULATED --> ",mac_calculado)
-                        print("MAC RECEIVED ----> ",mac_recibido)
-                        print("Mensaje recibido con éxito\n")
+                with open("logs.txt", "a") as l:  
+                    if nonce_recibido not in nonces:
+                
+                        f.write(str(nonce_recibido))
+                        f.write("\n")
+                        
+                        
+                        if mac_calculado == mac_recibido:
+                            print("KEY -------------> ",KEY)
+                            print("MENSAJE ---------> ",mensaje)
+                            print("NONCE -----------> ",nonce_recibido)
+                            print("MAC CALCULATED --> ",mac_calculado)
+                            print("MAC RECEIVED ----> ",mac_recibido)
+                            print("Mensaje recibido con éxito\n")
+                            msj_devuelto = "OK!" + nonce_recibido
+                            
+                            l.write(str(datetime.now(timezone.utc)) + ', Result: OK!, MAC recibida: '+str(mac_recibido)+'\n')
+                        else:
+                            print("Error de integridad en el mensaje recibido\n")
+                            l.write(str(datetime.now(timezone.utc)) + ', Result: Error de integridad, MAC recibida: '+str(mac_recibido)+'\n')
+                            msj_devuelto = "INTEGRITY ERROR!" + nonce_recibido
+                        
+                        data = f"{msj_devuelto}|{nonce_devuelto}|{calcular_mac.calcular_mac(msj_devuelto, KEY, nonce_devuelto)}".encode()
+                        conn.sendall(data)
                     else:
-                        print("Error de integridad en el mensaje recibido\n")
-                    nonce_devuelto = secrets.token_urlsafe()
-                    msj_devuelto = "OK!" + nonce_recibido
-                    data = f"{msj_devuelto}|{nonce_devuelto}|{calcular_mac.calcular_mac(msj_devuelto, KEY, nonce_devuelto)}".encode()
-                    conn.sendall(data)
-                    break
-                else:
-                    print("**NONCE DUPLICADO, CANCELANDO OPERACIÓN...**")
-
-
-
+                        print("**NONCE DUPLICADO, CANCELANDO OPERACIÓN...**")
+                        l.write(str(datetime.now(timezone.utc)) + ', Result: Error nonce duplicado, MAC recibida: '+str(mac_recibido)+'\n')
+                        msj_devuelto = "NONCE ERROR!" + nonce_recibido
+                        data = f"{msj_devuelto}|{nonce_devuelto}|{calcular_mac.calcular_mac(msj_devuelto, KEY, nonce_devuelto)}".encode()
+                        conn.sendall(data)
 
 
             
