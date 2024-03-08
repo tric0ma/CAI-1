@@ -1,18 +1,10 @@
 import socket
 import calcular_mac
-
+import secrets
 HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 3030  # Port to listen on (non-privileged ports are > 1023)
-
 KEY = bytes("98374509837459", "utf-8")
-MAX_RETRIES = 10
-# CAMBIAR EL TAMAÑO DEL NONCE A UNO MUY GRANDE PARA QUE NO HAYA REPETICIONES/COLISIONES
-# PASAR EL ALGORITMO DE COMPROBACION AL LADO DEL SERVIDOR Y EN CASO DE DETECCION DE REPETICION QUE
-# AVISE AL CLIENTE Y CANCELE LA TRANSACCION
 nonces = set()
-
-
-
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
@@ -28,7 +20,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             nonce_recibido = data.decode().split("|")[1]
             mac_recibido = data.decode().split("|")[2]
             mac_calculado = calcular_mac.calcular_mac(mensaje, KEY, nonce_recibido)
-
 
             with open("nonces.txt", "r") as f:
                 for line in f:
@@ -49,7 +40,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                         print("Mensaje recibido con éxito\n")
                     else:
                         print("Error de integridad en el mensaje recibido\n")
-
+                    nonce_devuelto = secrets.token_urlsafe()
+                    msj_devuelto = "OK!" + nonce_recibido
+                    data = f"{msj_devuelto}|{nonce_devuelto}|{calcular_mac.calcular_mac(msj_devuelto, KEY, nonce_devuelto)}".encode()
                     conn.sendall(data)
                     break
                 else:
