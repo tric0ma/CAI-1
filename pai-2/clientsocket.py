@@ -6,7 +6,7 @@ HOST = "127.0.0.1"  # The server's hostname or IP address
 PORT = 3030  # The port used by the server
 KEY = bytes("98374509837459", "utf-8") # Secret key shared with client
 MENSAJE = "23234 2342 200" # The client account or message
-NONCE = secrets.token_urlsafe() # Number Once to avoid replay attacks
+NONCE = str(secrets.token_urlsafe()) # Number Once to avoid replay attacks
 nonces = set()
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
@@ -14,7 +14,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # Enviar mensaje, nonce y resumen MAC al servidor
     s.sendall(f"{MENSAJE}|{NONCE}|{mac}".encode())
     data = s.recv(1024)
-    nonce_recibido = data.split("|")[1]
+    nonce_recibido = data.decode().split("|")[1]
     with open("nonces_client_bd.txt", "r") as f:
         for line in f:
             nonces.add(line.strip())
