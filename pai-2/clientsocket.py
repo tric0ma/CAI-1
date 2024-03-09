@@ -29,9 +29,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             f.write(str(nonce_recibido))
             f.write("\n")
                     
-            if mac_calculado == mac_recibido:
-                print("KEY -------------> ",KEY)
-                print("RESPUESTA ---------> ",mensaje)
+            if mac_calculado == mac_recibido and NONCE==mensaje.split("!")[1]:
+                print("RESPUESTA ---------> ",mensaje.split("!")[0])
                 print("NONCE -----------> ",nonce_recibido)
                 print("MAC CALCULATED --> ",mac_calculado)
                 print("MAC RECEIVED ----> ",mac_recibido)
