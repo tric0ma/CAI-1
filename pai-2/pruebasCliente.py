@@ -3,7 +3,16 @@
 import socket
 import calcular_mac
 import secrets
+import sys
 
+# Obtener los argumentos de la línea de comandos
+argumentos = sys.argv
+
+# Verificar si se proporcionó al menos un argumento
+if len(argumentos) > 1:
+    variable = argumentos[1]
+else:
+    variable = input("Por favor, proporciona un caso a probar de entre Interceptar, Nonce o Exito: ")
 
 
 def prueba_cliente(tipo_prueba):
@@ -47,9 +56,8 @@ def prueba_cliente(tipo_prueba):
                 f.write(str(nonce_recibido))
                 f.write("\n")
                         
-                if mac_calculado == mac_recibido:
-                    print("KEY -------------> ",KEY)
-                    print("RESPUESTA ---------> ",mensaje)
+                if mac_calculado == mac_recibido and NONCE==mensaje.split("!")[1]:
+                    print("RESPUESTA ---------> ",mensaje.split("!")[0])
                     print("NONCE -----------> ",nonce_recibido)
                     print("MAC CALCULATED --> ",mac_calculado)
                     print("MAC RECEIVED ----> ",mac_recibido)
@@ -61,7 +69,6 @@ def prueba_cliente(tipo_prueba):
                 print("NONCE REPETIDO - FALLO")
         
 if __name__ == '__main__':
-    tipo = input('Elija el tipo de error, o escriba éxito: ')
-    prueba_cliente(tipo)
+    prueba_cliente(variable)
 
  
