@@ -14,18 +14,30 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # Enviar mensaje, nonce y resumen MAC al servidor
     s.sendall(f"{MENSAJE}|{NONCE}|{mac}".encode())
     data = s.recv(1024)
+    mensaje = data.decode().split("|")[0]
     nonce_recibido = data.decode().split("|")[1]
+    mac_recibido = data.decode().split("|")[2]
+    mac_calculado = calcular_mac.calcular_mac(mensaje, KEY, nonce_recibido)
     with open("nonces_client_bd.txt", "r") as f:
         for line in f:
             nonces.add(line.strip())
 
-            with open("nonces_client_bd.txt", "a") as f:
+    with open("nonces_client_bd.txt", "a") as f:
     
-                if nonce_recibido not in nonces:
+        if nonce_recibido not in nonces:
             
-                    f.write(str(nonce_recibido))
-                    f.write("\n")
-                else:
-                    print("NONCE REPETIDO - FALLO")
-                    break
-print(f"Received {data!r}")
+            f.write(str(nonce_recibido))
+            f.write("\n")
+                    
+            if mac_calculado == mac_recibido:
+                print("KEY -------------> ",KEY)
+                print("RESPUESTA ---------> ",mensaje)
+                print("NONCE -----------> ",nonce_recibido)
+                print("MAC CALCULATED --> ",mac_calculado)
+                print("MAC RECEIVED ----> ",mac_recibido)
+                print("Mensaje recibido\n")
+            else:
+                print("Error de integridad en el mensaje recibido\n")
+                        
+        else:
+            print("NONCE REPETIDO - FALLO")
